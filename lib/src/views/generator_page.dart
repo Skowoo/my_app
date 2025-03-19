@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/src/main.dart';
 import 'package:provider/provider.dart';
-
+import '../logic/app_state.dart';
 import '../widgets/big_card.dart';
 
 class GeneratorPage extends StatelessWidget {
@@ -9,7 +8,7 @@ class GeneratorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+    var appState = context.watch<AppState>();
     var pair = appState.current;
 
     IconData icon;
@@ -23,7 +22,7 @@ class GeneratorPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          BigCard(pair: pair),
+          BigCard(content: pair),
           SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,

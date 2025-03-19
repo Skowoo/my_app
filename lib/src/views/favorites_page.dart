@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/src/main.dart';
 import 'package:provider/provider.dart';
+import '../logic/app_state.dart';
 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
+    var appState = context.watch<AppState>();
 
     if (appState.favorites.isEmpty) {
       return Center(child: Text('No favorites yet.'));
@@ -23,10 +23,7 @@ class FavoritesPage extends StatelessWidget {
           ),
         ),
         for (var pair in appState.favorites)
-          ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
-          ),
+          ListTile(leading: Icon(Icons.favorite), title: Text(pair)),
       ],
     );
   }
