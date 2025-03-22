@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/src/logic/app_state.dart';
 import 'package:provider/provider.dart';
-import 'logic/app_state.dart';
 import 'pages/home_page.dart';
 
 void main() {

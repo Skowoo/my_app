@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'favorites_page.dart';
-import 'generator_page.dart';
+import 'package:my_app/src/pages/single_game.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -10,37 +9,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Menu główne')),
+      appBar: AppBar(title: const Text('Menu główne'), centerTitle: true),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const GeneratorPage(),
-                  ),
-                );
-              },
-              child: const Text('Generator'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const FavoritesPage(),
-                  ),
-                );
-              },
-              child: const Text('Ulubione'),
+            SizedBox(height: 20),
+            SizedBox(
+              width: 200,
+              height: 70,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SingleGame()),
+                  );
+                },
+                child: const Text('Jeden gracz'),
+              ),
             ),
           ],
         ),
