@@ -19,6 +19,14 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          filledButtonTheme: FilledButtonThemeData(
+            style: ButtonStyle(
+              minimumSize: WidgetStateProperty.all(const Size(300, 80)),
+              textStyle: WidgetStateProperty.all(
+                const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
         ),
         home: MyHomePage(),
       ),

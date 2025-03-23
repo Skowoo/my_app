@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/src/pages/choose_room.dart';
 import 'package:my_app/src/pages/single_game.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -18,18 +19,24 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(height: 20),
-            SizedBox(
-              width: 200,
-              height: 70,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SingleGame()),
-                  );
-                },
-                child: const Text('Jeden gracz'),
-              ),
+            FilledButton.tonal(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SingleGame()),
+                );
+              },
+              child: const Text('Jeden gracz'),
+            ),
+            SizedBox(height: 20),
+            FilledButton.tonal(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ChooseRoom()),
+                );
+              },
+              child: const Text('Gra online'),
             ),
           ],
         ),
