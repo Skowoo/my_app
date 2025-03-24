@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/src/pages/choose_room.dart';
+import 'package:my_app/src/pages/settings.dart';
 import 'package:my_app/src/pages/single_game.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -37,6 +38,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Text('Gra online'),
+            ),
+            SizedBox(height: 20),
+            FilledButton.tonal(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Settings()),
+                );
+              },
+              child: const Text('Ustawienia'),
             ),
           ],
         ),
