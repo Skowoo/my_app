@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/src/logic/app_state.dart';
+import 'package:provider/provider.dart';
 import 'dart:math';
 import '../widgets/tic_tac_toe_board.dart';
 
@@ -15,11 +17,13 @@ class OnlineGameState extends State<OnlineGame> {
   String gameStatus = 'Czekam na ruch';
   bool isGameOver = false;
   late String roomId;
+  late String backendUrl;
 
   @override
   void initState() {
     super.initState();
     roomId = widget.roomId;
+    backendUrl = Provider.of<AppState>(context, listen: false).backendUrl;
   }
 
   void moveX(int index) {
@@ -82,19 +86,22 @@ class OnlineGameState extends State<OnlineGame> {
   }
 
   void finishGame() {
-    setState(() {
-      board = List.filled(9, '');
-      gameStatus = 'Czekam na ruch';
-      isGameOver = false;
-    });
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Gra online: $roomId'), centerTitle: true),
+      appBar: AppBar(title: Text('Gra online'), centerTitle: true),
       body: Column(
         children: [
+          Text(
+            'Room: [ $roomId ] on [ $backendUrl ]',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              backgroundColor: Colors.red,
+            ),
+          ),
           TicTacToeBoard(board: board, onMove: moveX),
           Padding(
             padding: const EdgeInsets.all(10),
