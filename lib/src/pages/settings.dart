@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../logic/app_state.dart';
 
 class Settings extends StatelessWidget {
@@ -17,13 +16,14 @@ class Settings extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Adres backendu:', style: TextStyle(fontSize: 16)),
+            const Text(
+              'Adres bazowy backendu:',
+              style: TextStyle(fontSize: 16),
+            ),
             TextField(
-              controller: TextEditingController(text: appState.backendUrl),
-              decoration: const InputDecoration(
-                hintText: 'Wpisz adres backendu',
-              ),
-              onChanged: (value) => appState.setBackendUrl(value),
+              controller: TextEditingController(text: appState.backendBaseUrl),
+              decoration: const InputDecoration(hintText: 'host:port'),
+              onChanged: (value) => appState.setBackendBaseUrl(value),
             ),
           ],
         ),

@@ -1,5 +1,9 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:my_app/src/helpers/api_helper.dart';
+import 'package:my_app/src/logic/app_state.dart';
 import 'package:my_app/src/pages/online_game.dart';
+import 'package:provider/provider.dart';
 
 class ChooseRoom extends StatefulWidget {
   const ChooseRoom({super.key});
@@ -9,21 +13,34 @@ class ChooseRoom extends StatefulWidget {
 }
 
 class ChooseRoomState extends State<ChooseRoom> {
-  void chooseRandomRoom() {
-    String roomId = "random";
-    _pushToRoom(roomId);
+  late AppState state;
+
+  Future<void> chooseRandomRoom() async {
+    try {
+      var response = await ApiHelper.getRandomRoomId(state);
+      _pushToRoom(response.roomId, response.playerCharacter);
+    } on Exception catch (e) {
+      log(e.toString());
+      if (!mounted) return;
+      Navigator.pop(context);
+    }
   }
 
-  void createNewRoom() {
-    String roomId = "new";
-    _pushToRoom(roomId);
-  }
-
-  void _pushToRoom(String roomId) {
+  void _pushToRoom(String roomId, String playerCharacter) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => OnlineGame(roomId: roomId)),
+      MaterialPageRoute(
+        builder:
+            (context) =>
+                OnlineGame(roomId: roomId, playerCharacter: playerCharacter),
+      ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    state = Provider.of<AppState>(context, listen: false);
   }
 
   @override
@@ -40,13 +57,6 @@ class ChooseRoomState extends State<ChooseRoom> {
                 chooseRandomRoom();
               },
               child: const Text('Wybierz losowy pokój'),
-            ),
-            const SizedBox(height: 20),
-            FilledButton.tonal(
-              onPressed: () {
-                createNewRoom();
-              },
-              child: const Text('Stwórz nowy pokój'),
             ),
           ],
         ),

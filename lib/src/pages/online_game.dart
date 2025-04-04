@@ -5,8 +5,13 @@ import 'dart:math';
 import '../widgets/tic_tac_toe_board.dart';
 
 class OnlineGame extends StatefulWidget {
-  const OnlineGame({super.key, required this.roomId});
+  const OnlineGame({
+    super.key,
+    required this.roomId,
+    required this.playerCharacter,
+  });
   final String roomId;
+  final String playerCharacter;
 
   @override
   OnlineGameState createState() => OnlineGameState();
@@ -18,12 +23,14 @@ class OnlineGameState extends State<OnlineGame> {
   bool isGameOver = false;
   late String roomId;
   late String backendUrl;
+  late String playerCharacter;
 
   @override
   void initState() {
     super.initState();
     roomId = widget.roomId;
-    backendUrl = Provider.of<AppState>(context, listen: false).backendUrl;
+    playerCharacter = widget.playerCharacter;
+    backendUrl = Provider.of<AppState>(context, listen: false).backendRestUrl;
   }
 
   void moveX(int index) {
@@ -96,7 +103,7 @@ class OnlineGameState extends State<OnlineGame> {
       body: Column(
         children: [
           Text(
-            'Room: [ $roomId ] on [ $backendUrl ]',
+            'Room: [ $roomId ] on [ $backendUrl ] playing as [ $playerCharacter ]',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               backgroundColor: Colors.red,
