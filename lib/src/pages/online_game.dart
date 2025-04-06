@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/src/helpers/signalr_helper.dart';
 import 'package:my_app/src/logic/app_state.dart';
 import 'package:provider/provider.dart';
-import 'dart:math';
 import '../widgets/tic_tac_toe_board.dart';
 
 class OnlineGame extends StatefulWidget {
@@ -22,57 +22,42 @@ class OnlineGameState extends State<OnlineGame> {
   String gameStatus = 'Czekam na ruch';
   bool isGameOver = false;
   late String roomId;
-  late String backendUrl;
+  late String backendWssUrl;
   late String playerCharacter;
+  late final SignalRHelper signalR;
 
   @override
   void initState() {
     super.initState();
     roomId = widget.roomId;
     playerCharacter = widget.playerCharacter;
-    backendUrl = Provider.of<AppState>(context, listen: false).backendRestUrl;
+    backendWssUrl = Provider.of<AppState>(context, listen: false).backendUrl;
+
+    signalR = SignalRHelper();
+    signalR.connect(backendWssUrl, roomId, handleBoardUpdate);
   }
 
-  void moveX(int index) {
+  void makeMove(int index) {
     if (board[index].isEmpty && !isGameOver) {
       setState(() {
-        board[index] = 'X';
-        checkGameState('X');
-      });
-    }
-  }
-
-  void moveO(int index) {
-    if (board[index].isEmpty && !isGameOver) {
-      setState(() {
-        board[index] = 'O';
-        checkGameState('O');
+        board[index] = playerCharacter;
+        checkGameState(playerCharacter);
       });
     }
   }
 
   void checkGameState(String player) {
     if (checkWin(player)) {
-      gameStatus = player == 'X' ? 'Wygrana!' : 'Porażka!';
+      gameStatus = player == playerCharacter ? 'Wygrana!' : 'Porażka!';
       isGameOver = true;
     } else if (!board.contains('')) {
       gameStatus = 'Remis!';
       isGameOver = true;
     } else {
       gameStatus =
-          player == 'X' ? 'Czekaj na ruch przeciwnika' : 'Czekam na ruch';
-      if (player == 'X') makeAutoMove();
-    }
-  }
-
-  void makeAutoMove() {
-    var emptyIndexes = [
-      for (int i = 0; i < board.length; i++)
-        if (board[i].isEmpty) i,
-    ];
-    if (emptyIndexes.isNotEmpty) {
-      int move = emptyIndexes[Random().nextInt(emptyIndexes.length)];
-      moveO(move);
+          player == playerCharacter
+              ? 'Czekaj na ruch przeciwnika'
+              : 'Czekam na ruch';
     }
   }
 
@@ -92,8 +77,21 @@ class OnlineGameState extends State<OnlineGame> {
     );
   }
 
+  void handleBoardUpdate(String boardState) {
+    setState(() {
+      board = boardState.split('');
+      checkGameState(playerCharacter == 'X' ? 'O' : 'X');
+    });
+  }
+
   void finishGame() {
     Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    signalR.disconnect();
+    super.dispose();
   }
 
   @override
@@ -103,13 +101,13 @@ class OnlineGameState extends State<OnlineGame> {
       body: Column(
         children: [
           Text(
-            'Room: [ $roomId ] on [ $backendUrl ] playing as [ $playerCharacter ]',
+            'Room: [ $roomId ] on [ $backendWssUrl ] playing as [ $playerCharacter ]',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               backgroundColor: Colors.red,
             ),
           ),
-          TicTacToeBoard(board: board, onMove: moveX),
+          TicTacToeBoard(board: board, onMove: makeMove),
           Padding(
             padding: const EdgeInsets.all(10),
             child: Text(

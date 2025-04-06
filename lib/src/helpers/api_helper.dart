@@ -6,7 +6,7 @@ class ApiHelper {
     AppState state,
   ) async {
     var response = await http.post(
-      Uri.parse('${state.backendRestUrl}/TicTacToeGame/JoinRoom'),
+      Uri.parse('${state.backendUrl}/TicTacToeGame/JoinRoom'),
     );
 
     if (response.statusCode == 200 && response.body.isNotEmpty) {

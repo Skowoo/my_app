@@ -21,7 +21,7 @@ class Settings extends StatelessWidget {
               style: TextStyle(fontSize: 16),
             ),
             TextField(
-              controller: TextEditingController(text: appState.backendBaseUrl),
+              controller: TextEditingController(text: appState.backendUrl),
               decoration: const InputDecoration(hintText: 'host:port'),
               onChanged: (value) => appState.setBackendBaseUrl(value),
             ),
