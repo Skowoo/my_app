@@ -10,23 +10,23 @@ class SingleGame extends StatefulWidget {
 }
 
 class SingleGameState extends State<SingleGame> {
-  List<String> board = List.filled(9, '');
+  String board = '         ';
   String gameStatus = 'Czekam na ruch';
   bool isGameOver = false;
 
   void moveX(int index) {
-    if (board[index].isEmpty && !isGameOver) {
+    if (board[index] == ' ' && !isGameOver) {
       setState(() {
-        board[index] = 'X';
+        board = '${board.substring(0, index)}X${board.substring(index + 1)}';
         checkGameState('X');
       });
     }
   }
 
   void moveO(int index) {
-    if (board[index].isEmpty && !isGameOver) {
+    if (board[index] == ' ' && !isGameOver) {
       setState(() {
-        board[index] = 'O';
+        board = '${board.substring(0, index)}O${board.substring(index + 1)}';
         checkGameState('O');
       });
     }
@@ -49,7 +49,7 @@ class SingleGameState extends State<SingleGame> {
   void makeAutoMove() {
     var emptyIndexes = [
       for (int i = 0; i < board.length; i++)
-        if (board[i].isEmpty) i,
+        if (board[i] == ' ') i,
     ];
     if (emptyIndexes.isNotEmpty) {
       int move = emptyIndexes[Random().nextInt(emptyIndexes.length)];
@@ -75,7 +75,7 @@ class SingleGameState extends State<SingleGame> {
 
   void restartGame() {
     setState(() {
-      board = List.filled(9, '');
+      board = '         ';
       gameStatus = 'Czekam na ruch';
       isGameOver = false;
     });

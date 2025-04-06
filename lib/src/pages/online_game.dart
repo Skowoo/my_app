@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/src/helpers/signalr_helper.dart';
+import 'package:my_app/src/helpers/api_helper.dart';
 import 'package:my_app/src/logic/app_state.dart';
 import 'package:provider/provider.dart';
 import '../widgets/tic_tac_toe_board.dart';
@@ -18,11 +19,11 @@ class OnlineGame extends StatefulWidget {
 }
 
 class OnlineGameState extends State<OnlineGame> {
-  List<String> board = List.filled(9, '');
-  String gameStatus = 'Czekam na ruch';
+  String board = '         ';
+  String gameStatus = 'Status gry';
   bool isGameOver = false;
+  late AppState state;
   late String roomId;
-  late String backendWssUrl;
   late String playerCharacter;
   late final SignalRHelper signalR;
 
@@ -31,56 +32,20 @@ class OnlineGameState extends State<OnlineGame> {
     super.initState();
     roomId = widget.roomId;
     playerCharacter = widget.playerCharacter;
-    backendWssUrl = Provider.of<AppState>(context, listen: false).backendUrl;
-
+    state = Provider.of<AppState>(context, listen: false);
     signalR = SignalRHelper();
-    signalR.connect(backendWssUrl, roomId, handleBoardUpdate);
+    signalR.connect(state.backendUrl, roomId, handleBoardUpdate);
   }
 
-  void makeMove(int index) {
-    if (board[index].isEmpty && !isGameOver) {
-      setState(() {
-        board[index] = playerCharacter;
-        checkGameState(playerCharacter);
-      });
+  Future<void> makeMove(int index) async {
+    if (board[index] == ' ') {
+      await ApiHelper.sendMove(state, roomId, index, playerCharacter);
     }
-  }
-
-  void checkGameState(String player) {
-    if (checkWin(player)) {
-      gameStatus = player == playerCharacter ? 'Wygrana!' : 'Porażka!';
-      isGameOver = true;
-    } else if (!board.contains('')) {
-      gameStatus = 'Remis!';
-      isGameOver = true;
-    } else {
-      gameStatus =
-          player == playerCharacter
-              ? 'Czekaj na ruch przeciwnika'
-              : 'Czekam na ruch';
-    }
-  }
-
-  bool checkWin(String player) {
-    const winPatterns = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    return winPatterns.any(
-      (pattern) => pattern.every((index) => board[index] == player),
-    );
   }
 
   void handleBoardUpdate(String boardState) {
     setState(() {
-      board = boardState.split('');
-      checkGameState(playerCharacter == 'X' ? 'O' : 'X');
+      board = boardState;
     });
   }
 
@@ -100,19 +65,20 @@ class OnlineGameState extends State<OnlineGame> {
       appBar: AppBar(title: Text('Gra online'), centerTitle: true),
       body: Column(
         children: [
-          Text(
-            'Room: [ $roomId ] on [ $backendWssUrl ] playing as [ $playerCharacter ]',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              backgroundColor: Colors.red,
-            ),
-          ),
           TicTacToeBoard(board: board, onMove: makeMove),
           Padding(
             padding: const EdgeInsets.all(10),
             child: Text(
-              gameStatus,
+              'Grasz jako $playerCharacter',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Text(
+              gameStatus,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
           ),

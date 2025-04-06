@@ -16,7 +16,26 @@ class ApiHelper {
       );
     } else {
       throw Exception(
-        'Failed to fetch data from API, status code: ${response.statusCode}',
+        'Failed to fetch data from API, status code: ${response.statusCode}, message: ${response.body}',
+      );
+    }
+  }
+
+  static Future sendMove(
+    AppState state,
+    String gameId,
+    int fieldIndex,
+    String playerCharacter,
+  ) async {
+    var response = await http.post(
+      Uri.parse(
+        '${state.backendUrl}/TicTacToeGame/MakeMove/$gameId/$fieldIndex/$playerCharacter',
+      ),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Failed to fetch data from API, status code: ${response.statusCode}, message: ${response.body}',
       );
     }
   }

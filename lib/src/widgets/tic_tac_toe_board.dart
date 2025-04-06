@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class TicTacToeBoard extends StatelessWidget {
-  final List<String> board;
+  final String board;
   final Function(int) onMove;
 
   const TicTacToeBoard({super.key, required this.board, required this.onMove});
