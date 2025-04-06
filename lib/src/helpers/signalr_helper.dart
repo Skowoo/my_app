@@ -32,10 +32,6 @@ class SignalRHelper {
     await connection.invoke('JoinGame', args: [roomId]);
   }
 
-  Future<void> sendMove(String gameId, String boardState) async {
-    await connection.invoke('UpdateBoard', args: [gameId, boardState]);
-  }
-
   Future<void> disconnect() async {
     await connection.stop();
   }

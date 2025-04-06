@@ -20,11 +20,18 @@ class OnlineGame extends StatefulWidget {
 
 class OnlineGameState extends State<OnlineGame> {
   String board = '         ';
-  String gameStatus = 'Status gry';
-  bool isGameOver = false;
+  bool moveSend = false;
+  bool moveConfirmed = false;
+  bool gameConcluded = false;
+  late bool oponentMoveReceived = playerCharacter == 'O' ? true : false;
+  late String gameStatus =
+      playerCharacter == 'O'
+          ? 'Oczekiwanie na Twój ruch...'
+          : 'Oczekiwanie na dołączenie przeciwnika...';
   late AppState state;
   late String roomId;
   late String playerCharacter;
+  late String opponentCharacter = playerCharacter == 'O' ? 'X' : 'O';
   late final SignalRHelper signalR;
 
   @override
@@ -38,15 +45,51 @@ class OnlineGameState extends State<OnlineGame> {
   }
 
   Future<void> makeMove(int index) async {
-    if (board[index] == ' ') {
+    if (board[index] == ' ' &&
+        !moveSend &&
+        oponentMoveReceived &&
+        !gameConcluded) {
+      moveSend = true;
+      gameStatus = 'Wykonałeś ruch, oczekiwanie na serwer';
       await ApiHelper.sendMove(state, roomId, index, playerCharacter);
     }
   }
 
   void handleBoardUpdate(String boardState) {
     setState(() {
+      if (moveSend) {
+        moveSend = false;
+        oponentMoveReceived = false;
+        gameStatus = 'Oczekiwanie na ruch przeciwnika...';
+      } else {
+        oponentMoveReceived = true;
+        gameStatus = 'Oczekiwanie na Twój ruch...';
+      }
       board = boardState;
+      if (checkWin(playerCharacter)) {
+        gameConcluded = true;
+        gameStatus = 'Zwycięstwo!';
+      } else if (checkWin(opponentCharacter)) {
+        gameConcluded = true;
+        gameStatus = 'Porażka!';
+      }
     });
+  }
+
+  bool checkWin(String player) {
+    const winPatterns = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    return winPatterns.any(
+      (pattern) => pattern.every((index) => board[index] == player),
+    );
   }
 
   void finishGame() {
