@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         title: 'MyApp',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           filledButtonTheme: FilledButtonThemeData(
             style: ButtonStyle(
               minimumSize: WidgetStateProperty.all(const Size(300, 80)),
