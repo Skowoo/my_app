@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:my_app/src/helpers/signalr_helper.dart';
 import 'package:my_app/src/helpers/api_helper.dart';
@@ -24,7 +25,7 @@ class OnlineGameState extends State<OnlineGame> {
   bool moveConfirmed = false;
   bool gameConcluded = false;
   late bool oponentMoveReceived = playerCharacter == 'O' ? true : false;
-  late String gameStatus =
+  late String gameStatusDescription =
       playerCharacter == 'O'
           ? 'Oczekiwanie na Twój ruch...'
           : 'Oczekiwanie na dołączenie przeciwnika...';
@@ -50,7 +51,7 @@ class OnlineGameState extends State<OnlineGame> {
         oponentMoveReceived &&
         !gameConcluded) {
       moveSend = true;
-      gameStatus = 'Wykonałeś ruch, oczekiwanie na serwer';
+      gameStatusDescription = 'Wykonałeś ruch, oczekiwanie na serwer';
       await ApiHelper.sendMove(state, roomId, index, playerCharacter);
     }
   }
@@ -60,20 +61,27 @@ class OnlineGameState extends State<OnlineGame> {
       if (moveSend) {
         moveSend = false;
         oponentMoveReceived = false;
-        gameStatus = 'Oczekiwanie na ruch przeciwnika...';
+        gameStatusDescription = 'Oczekiwanie na ruch przeciwnika...';
       } else {
         oponentMoveReceived = true;
-        gameStatus = 'Oczekiwanie na Twój ruch...';
+        gameStatusDescription = 'Oczekiwanie na Twój ruch...';
       }
       board = boardState;
-      if (checkWin(playerCharacter)) {
-        gameConcluded = true;
-        gameStatus = 'Zwycięstwo!';
-      } else if (checkWin(opponentCharacter)) {
-        gameConcluded = true;
-        gameStatus = 'Porażka!';
-      }
+      checkIfGameIsConcluded();
     });
+  }
+
+  void checkIfGameIsConcluded() {
+    if (checkWin(playerCharacter)) {
+      gameConcluded = true;
+      gameStatusDescription = 'Zwycięstwo!';
+    } else if (checkWin(opponentCharacter)) {
+      gameConcluded = true;
+      gameStatusDescription = 'Porażka!';
+    } else if (!board.contains(' ')) {
+      gameConcluded = true;
+      gameStatusDescription = 'Remis!';
+    }
   }
 
   bool checkWin(String player) {
@@ -94,6 +102,25 @@ class OnlineGameState extends State<OnlineGame> {
 
   void finishGame() {
     Navigator.pop(context);
+  }
+
+  Future<void> startNewOnlineGame() async {
+    try {
+      var response = await ApiHelper.getRandomRoomId(state);
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => OnlineGame(
+                roomId: response.roomId,
+                playerCharacter: response.playerCharacter,
+              ),
+        ),
+      );
+    } on Exception catch (e) {
+      log(e.toString());
+    }
   }
 
   @override
@@ -120,16 +147,21 @@ class OnlineGameState extends State<OnlineGame> {
           Padding(
             padding: const EdgeInsets.all(10),
             child: Text(
-              gameStatus,
+              gameStatusDescription,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
           ),
-          ElevatedButton(
+          if (gameConcluded)
+            FilledButton.tonal(
+              onPressed: startNewOnlineGame,
+              child: const Text('Następna gra!'),
+            ),
+          SizedBox(height: 50),
+          FilledButton.tonal(
             onPressed: finishGame,
             child: const Text('Zakończ grę'),
           ),
-          const SizedBox(height: 50),
         ],
       ),
     );
