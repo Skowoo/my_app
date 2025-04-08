@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/src/logic/app_state.dart';
+import 'package:my_app/src/logic/tic_tac_toe_game.dart';
 import 'package:provider/provider.dart';
-import 'dart:math';
 import '../widgets/tic_tac_toe_board.dart';
 
 class SingleGame extends StatefulWidget {
@@ -12,9 +12,11 @@ class SingleGame extends StatefulWidget {
 }
 
 class SingleGameState extends State<SingleGame> {
-  late AppState state;
+  String makeMoveText = 'Wykonaj swój ruch!';
+  String waitingForOponentText = 'Czekam na ruch przeciwnika...';
   String board = '         ';
-  String gameStatusDescription = 'Czekam na ruch';
+  late AppState state;
+  late String gameStatusDescription = makeMoveText;
   bool isGameConcluded = false;
   bool waitingForOponent = false;
 
@@ -23,72 +25,46 @@ class SingleGameState extends State<SingleGame> {
       setState(() {
         board = '${board.substring(0, index)}X${board.substring(index + 1)}';
         waitingForOponent = true;
-        checkGameState('X');
+        checkIfGameIsConcluded('X');
       });
     }
   }
 
-  void moveO(int index) {
-    if (board[index] == ' ' && !isGameConcluded) {
+  void makeAutoMove(String player) {
+    Future.delayed(Duration(milliseconds: state.singleplayerBotDelay), () {
       setState(() {
-        board = '${board.substring(0, index)}O${board.substring(index + 1)}';
+        board = TicTacToeGame.makeMove(board, player);
+        checkIfGameIsConcluded(player);
         waitingForOponent = false;
-        gameStatusDescription = 'Czekam na ruch';
-        checkGameState('O');
       });
-    }
+    });
   }
 
-  void checkGameState(String player) {
-    if (checkWin(player)) {
+  void checkIfGameIsConcluded(String player) {
+    if (TicTacToeGame.checkWin(board, player)) {
       gameStatusDescription = player == 'X' ? 'Wygrana!' : 'Porażka!';
       isGameConcluded = true;
-    } else if (!board.contains('')) {
+    } else if (TicTacToeGame.checkDraw(board)) {
       gameStatusDescription = 'Remis!';
       isGameConcluded = true;
     } else {
       gameStatusDescription =
-          player == 'X' ? 'Czekam na ruch przeciwnika' : 'Czekam na ruch';
-      if (player == 'X') makeAutoMove();
+          player == 'X' ? waitingForOponentText : makeMoveText;
+      if (player == 'X') makeAutoMove('O');
     }
-  }
-
-  void makeAutoMove() {
-    var emptyIndexes = [
-      for (int i = 0; i < board.length; i++)
-        if (board[i] == ' ') i,
-    ];
-    if (emptyIndexes.isNotEmpty) {
-      Future.delayed(Duration(milliseconds: state.singleplayerBotDelay), () {
-        int move = emptyIndexes[Random().nextInt(emptyIndexes.length)];
-        moveO(move);
-      });
-    }
-  }
-
-  bool checkWin(String player) {
-    const winPatterns = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    return winPatterns.any(
-      (pattern) => pattern.every((index) => board[index] == player),
-    );
   }
 
   void restartGame() {
     setState(() {
       board = '         ';
-      gameStatusDescription = 'Czekam na ruch';
+      gameStatusDescription = makeMoveText;
       isGameConcluded = false;
       waitingForOponent = false;
     });
+  }
+
+  void finishGame() {
+    Navigator.pop(context);
   }
 
   @override
@@ -112,8 +88,12 @@ class SingleGameState extends State<SingleGame> {
               textAlign: TextAlign.center,
             ),
           ),
-          ElevatedButton(onPressed: restartGame, child: const Text('Restart')),
-          const SizedBox(height: 50),
+          SizedBox(height: 25),
+          if (isGameConcluded)
+            FilledButton.tonal(
+              onPressed: restartGame,
+              child: const Text('Następna gra!'),
+            ),
         ],
       ),
     );
